@@ -4,7 +4,7 @@ import sys
 from src.logger import logging
 def error_detail_setter(error_message,error_detail:sys):
     # exception.info() return 3 things
-    _,_,exc_tb=sys.exc_info()
+    _,_,exc_tb=error_detail.exc_info()
     file_name=exc_tb.tb_frame.f_code.co_filename
     error="Error occured in python script name[{0}] line number [{1}] error message [{2}]".format(
         file_name,exc_tb.tb_lineno,str(error_message)
@@ -28,7 +28,7 @@ if __name__=="__main__":
     try:
         print(a/0)
     except Exception as e:
-        error_message=CustomException("Error - Division by Zero",e)
+        error_message=CustomException(e,sys)
         logging.info(error_message)
 
 
