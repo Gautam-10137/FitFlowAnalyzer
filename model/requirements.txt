@@ -1,6 +1,10 @@
-pandas 
-numpy
-seaborn
-matplotlib
-scikit-learn
-# -e .
+# pandas 
+# numpy
+# seaborn
+# matplotlib
+# scikit-learn
+# catboost
+# xgboost
+# dill
+# Flask
+-e .
