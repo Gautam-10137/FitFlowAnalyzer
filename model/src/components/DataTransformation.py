@@ -57,6 +57,7 @@ class DataTransformation:
         except Exception as e:
             CustomException(e,sys)
     
+    
     def initiate_data_transfomation(self,train_path,test_path):
         try:
             # task: transform data into appropriate fomr and make a transforer object so that we can transform input data, 
@@ -70,7 +71,7 @@ class DataTransformation:
             categorical_columns=[feature for feature in train_data.columns if train_data[feature].dtype=='O']
             # print(numerical_columns)
             # print(categorical_columns)
-            target_column="Sleep Disorder"
+            target_column="Sleep_Disorder"
             categorical_columns=[column for column in categorical_columns if column!=target_column]
             # print(categorical_columns)
             logging.info("Obtaining preprocessing object")
@@ -91,18 +92,36 @@ class DataTransformation:
             input_feature_test_arr=preprocessor_obj.transform(input_feature_test_df)
             logging.info("Applied Preprocessing on input features")
             # Apply preprocessing to the target column
-            imputer = SimpleImputer(strategy="most_frequent")
-            onehot_encoder = OneHotEncoder()
-            target_column_train_arr =onehot_encoder.fit_transform(
-                imputer.fit_transform(target_feature_train.values.reshape(-1, 1))
-            ).toarray()
-            target_column_test_arr = onehot_encoder.fit_transform(
-                imputer.fit_transform(target_feature_test.values.reshape(-1, 1))
-            ).toarray()
-            
-            train_arr = np.concatenate([input_feature_train_arr, target_column_train_arr], axis=1)
-            test_arr = np.concatenate([input_feature_test_arr, target_column_test_arr], axis=1)
+            # Mapping the categories
+            sleep_map={'No Disorder':0,'Sleep Apnea':1,'Insomnia':2}
 
+            target_column_train_values =target_feature_train.map(sleep_map).astype('int')
+            
+            target_column_test_values =target_feature_test.map(sleep_map).astype('int')
+            
+            target_column_train_arr=target_column_train_values.values.reshape(-1, 1)
+            target_column_test_arr=target_column_test_values.values.reshape(-1, 1)
+            print(target_column_train_arr[0,0].dtype)
+
+            # imputer = SimpleImputer(strategy="most_frequent")
+            # onehot_encoder = OneHotEncoder()
+
+            # target_column_train_arr =onehot_encoder.fit_transform(
+            #     imputer.fit_transform(target_feature_train.values.reshape(-1, 1))
+            # ).toarray()
+            # target_column_test_arr = onehot_encoder.fit_transform(
+            #     imputer.fit_transform(target_feature_test.values.reshape(-1, 1))
+            # ).toarray()
+            
+            train_arr = np.column_stack((input_feature_train_arr, target_column_train_arr.astype('int')))
+            test_arr = np.column_stack((input_feature_test_arr, target_column_test_arr.astype('int')))
+            # print(train_arr.dtype)
+            # print(test_arr.dtype)
+           
+            train_arr[:,-1 ]=train_arr[:,-1 ].astype('int')
+            test_arr[:,-1 ]=test_arr[:,-1 ].astype('int')
+            
+            # print(test_arr[0])
             logging.info("Saving preprocessing object")
             save_object(
                 file_path=self.transformationConfig.preprocessor_file_path,
@@ -110,7 +129,7 @@ class DataTransformation:
             )
 
             logging.info("Saved preprocessing object")
-
+            
             return (
                 train_arr,
                 test_arr,

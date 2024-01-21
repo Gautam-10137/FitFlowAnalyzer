@@ -6,6 +6,7 @@ from sklearn.model_selection import train_test_split
 from src.logger import logging
 from src.exception import CustomException
 from src.components.DataTransformation import  DataTransformation 
+from src.components.ModelTrainer import ModelTrainer
 @dataclass
 class DataIngestionConfig:
     train_data_path:str=os.path.join("artifacts","train.csv")
@@ -21,9 +22,9 @@ class DataIngestion:
         try:
             # here we can implement logic of reading data from database
             df=pd.read_csv("./jupyter/Sleep_health_and_lifestyle_dataset.csv")
-            df[['Systolic_blood_pressure','Diastolic_blood_pressure']]=df['Blood Pressure'].str.split('/',expand=True)
-            df=df.drop('Blood Pressure',axis=1)
-            df=df.drop('Person ID',axis=1)
+            df[['Systolic_blood_pressure','Diastolic_blood_pressure']]=df['Blood_Pressure'].str.split('/',expand=True)
+            df=df.drop('Blood_Pressure',axis=1)
+            df=df.drop('Person_ID',axis=1)
             df['Systolic_blood_pressure']=df['Systolic_blood_pressure'].astype('int')
             df['Diastolic_blood_pressure']=df['Diastolic_blood_pressure'].astype('int')
             # making artifacts directory to store files
@@ -54,6 +55,9 @@ if __name__=="__main__":
     train_path,test_path=dataIngestion.initiate_data_ingestion()
     dataTransformation=DataTransformation()
     train_arr,test_arr,_=dataTransformation.initiate_data_transfomation(train_path,test_path)
+    model_trainer=ModelTrainer()
+    score=model_trainer.initiate_model_trainer(train_arr,test_arr)
+    print(score)
     
 
 
